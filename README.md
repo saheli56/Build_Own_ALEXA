@@ -1,68 +1,48 @@
-# Alexa Voice Assistant (Python)
+# 🤖 Build Your Own Alexa Using Python
 
-A simple voice-controlled virtual assistant built with Python. This project allows you to interact with your computer using voice commands, similar to Amazon Alexa. It can play YouTube songs, tell the current time, fetch Wikipedia summaries, tell jokes, and more.
+This project is a **Python-based voice assistant**, modeled after **Amazon Alexa**, capable of responding to voice commands for tasks like searching on Google, opening websites, telling jokes, playing YouTube videos, and much more.
 
-## Features
-- **Voice Recognition:** Listens for your commands using your microphone.
-- **Text-to-Speech:** Responds with spoken feedback.
-- **Play Songs:** Plays requested songs on YouTube.
-- **Time Query:** Tells the current time.
-- **Wikipedia Search:** Answers "Who is ..." questions with a summary from Wikipedia.
-- **Jokes:** Tells random jokes.
-- **Greetings:** Responds to greetings and simple conversational phrases.
+## 🚀 Features
 
-## Requirements
-- Python 3.7+
-- Microphone (for voice input)
+- 🔊 Speech recognition from microphone input
+- 🎙️ Text-to-speech response using `pyttsx3`
+- 🌐 Open websites like Google, YouTube, and Stack Overflow
+- 🔍 Perform Google search via voice command
+- 📢 Responds with jokes using the `pyjokes` library
+- ⌛ Provides current time and date
+- 📂 Launches applications like Chrome, VS Code (customizable)
+- 🧠 Intelligent command handling
 
-## Dependencies
-Install the following Python packages:
+---
 
-- `speechrecognition`
-- `pyttsx3`
-- `pywhatkit`
-- `datetime` (standard library)
-- `wikipedia`
-- `pyjokes`
+## 🛠️ Tech Stack & Libraries
 
-You can install the required packages using pip:
+- **Python 3.x**
+- [speech_recognition](https://pypi.org/project/SpeechRecognition/)
+- [pyttsx3](https://pypi.org/project/pyttsx3/)
+- [pywhatkit](https://pypi.org/project/pywhatkit/)
+- [pyjokes](https://pypi.org/project/pyjokes/)
+- [datetime](https://docs.python.org/3/library/datetime.html)
+- [webbrowser](https://docs.python.org/3/library/webbrowser.html)
+- [os](https://docs.python.org/3/library/os.html)
 
-```bash
-pip install SpeechRecognition pyttsx3 pywhatkit wikipedia pyjokes
-```
+---
 
-## Usage
-1. Clone this repository or download the source code.
-2. Ensure your microphone is connected and working.
-3. Run the main script:
+## ⚙️ Setup Instructions
 
-```bash
-python main.py
-```
+### 1. Clone the Repository
 
-4. Say "Alexa" followed by your command. Example commands:
-   - "Alexa play Shape of You"
-   - "Alexa what is the time"
-   - "Alexa who is Albert Einstein"
-   - "Alexa tell me a joke"
-   - "Alexa hello"
+bash
+git clone https://github.com/saheli56/Build_Own_ALEXA.git
+cd Build_Own_ALEXA 
 
-## Example Commands
-- **Play a song:**
-  - "Alexa play [song name]"
-- **Get the time:**
-  - "Alexa what is the time"
-- **Wikipedia summary:**
-  - "Alexa who is [person]"
-- **Tell a joke:**
-  - "Alexa tell me a joke"
-- **Greetings:**
-  - "Alexa hello"
 
-## Notes
+---
+
+## 📝 Notes
 - The assistant listens for the keyword "Alexa" before processing commands.
 - Make sure your microphone is not muted and has the necessary permissions.
 - For best results, speak clearly and wait for the "listening..." prompt.
 
-## License
-This project is for educational purposes and is not affiliated with Amazon or the Alexa product line.
+## 🪪 License
+This project is for educational purposes and is not affiliated with Amazon or the Alexa product line.

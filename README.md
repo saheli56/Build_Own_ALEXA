@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🤖 Build Your Own Alexa Using Python
 
 This project is a **Python-based voice assistant**, modeled after **Amazon Alexa**, capable of responding to voice commands for tasks like searching on Google, opening websites, telling jokes, playing YouTube videos, and much more.
@@ -46,3 +47,5 @@ cd Build_Own_ALEXA
 
 ## 🪪 License
 This project is for educational purposes and is not affiliated with Amazon or the Alexa product line.
+=======
+>>>>>>> 1293d37 (Added commads type section)

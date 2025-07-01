@@ -98,19 +98,24 @@ def run_alexa():
             'leetcode': 'https://leetcode.com',
             'ing': 'https://www.ing.com/Home.htm',
         }
-        match = re.search(r'open (.+?) website', command)
+        # Use a more robust extraction for the site name
+        # Accepts: "open <site> website" or just "open <site>"
+        match = re.search(r'open (.+?)(?: website)?$', command)
         site_name = ''
         url = ''
         if match:
             site_name = match.group(1).strip().lower()
-            for word in ['the', 'app', 'site']:
+            # Remove any extra words (e.g., 'the', 'app', 'site', 'website')
+            for word in ['the', 'app', 'site', 'website']:
                 site_name = site_name.replace(word, '').strip()
+            # Try to match known sites (by key or by substring)
             for key in sorted(known_sites, key=len, reverse=True):
-                if key in site_name or site_name in key:
+                if key == site_name or key in site_name or site_name in key:
                     url = known_sites[key]
                     site_name = key
                     break
             if not url:
+                # Fallback: construct a .com URL with no spaces or special chars
                 safe_site = re.sub(r'[^a-z0-9]', '', site_name)
                 url = f'https://www.{safe_site}.com'
             display_name = site_name.capitalize() if site_name else 'website'

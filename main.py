@@ -40,8 +40,8 @@ def get_user_command():
     user_input = input('Type your command (or press Enter to use voice): ').strip()
     if user_input:
         command = user_input.lower()
-        # Remove filler words and punctuation
-        for filler in [',', '.', '?', '!', 'please', 'alexa,', 'alexa']:
+        # Remove filler words and punctuation (keep dots for domains)
+        for filler in [',', '?', '!', 'please', 'alexa,', 'alexa']:
             command = command.replace(filler, '')
         print(f"DEBUG: Received typed command -> {command}")
         return command
@@ -61,7 +61,7 @@ def run_alexa():
         talk('playing ' + song)
         pywhatkit.playonyt(song)
     # Relaxed matching for open website
-    elif 'open' in command and 'website' in command:
+    elif 'open' in command and ('website' in command or 'dot' in command or any(tld in command for tld in ['.com', '.in', '.ai', '.org', '.net', '.co', '.us', '.gov', '.edu'])):
         known_sites = {
             'google.com': 'https://www.google.com',
             'linkedin.com': 'https://www.linkedin.com',
@@ -99,32 +99,52 @@ def run_alexa():
             'leetcode.com': 'https://leetcode.com',
             'ing.com': 'https://www.ing.com/Home.htm',
         }
-        # Use a more robust extraction for the site name
+        # Supported TLDs
+        tlds = ['.com', '.in', '.ai', '.org', '.net', '.co', '.us', '.gov', '.edu', '.io', '.me', '.info', '.xyz']
+
+        # Extract the site name from the command
         match = re.search(r'open (.+?)(?: website)?$', command)
         site_name = ''
         url = ''
         if match:
             site_name = match.group(1).strip().lower()
-            # Replace spoken domain suffixes
-            site_name = site_name.replace(' dot com', '.com').replace(' dot in', '.in').replace(' dot org', '.org')
-            # Remove any extra words (e.g., 'the', 'app', 'site', 'website')
-            for word in ['the', 'app', 'site', 'website']:
+
+            # Replace spoken domain suffixes like 'dot ai' with '.ai'
+            # Clean unwanted words first
+            for word in ['the', 'app', 'site', 'website', 'please']:
                 site_name = site_name.replace(word, '').strip()
-            # Remove spaces
+            
+            for tld in tlds:
+                spoken = ' dot ' + tld[1:]
+                site_name = site_name.replace(spoken, tld)
+            
+            # Check for TLDs as separate words without "dot"
+            parts = site_name.split()
+            if len(parts) > 1:
+                last_part = parts[-1]
+                if f".{last_part}" in tlds:
+                    site_name = ".".join(parts)
+            
+            # Final clean of any remaining spaces not part of domain structure
             site_name = site_name.replace(' ', '')
-            # Try to match known sites (by key or by substring)
+
+            # Check if the site matches a known site
             for key in sorted(known_sites, key=len, reverse=True):
                 if key == site_name or key in site_name or site_name in key:
                     url = known_sites[key]
                     site_name = key
                     break
+
             if not url:
-                # If the user specified a domain, use it; otherwise, fallback to .com
-                if any(site_name.endswith(suffix) for suffix in ['.com', '.in', '.org']):
+                # Check if the site name ends with a valid TLD
+                has_tld = any(site_name.endswith(tld) for tld in tlds)
+                if has_tld:
                     url = f'https://www.{site_name}'
                 else:
+                    # Default to '.com' if no TLD is found
                     url = f'https://www.{site_name}.com'
-            display_name = site_name.replace('.com','').replace('.in','').replace('.org','').capitalize() if site_name else 'website'
+
+            display_name = site_name.split('.')[0].capitalize() if site_name else 'website'
             talk(f'Opening {display_name}')
             print(f'Opening URL: {url}')
             webbrowser.open(url)

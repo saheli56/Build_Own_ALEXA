@@ -63,51 +63,55 @@ def run_alexa():
     # Relaxed matching for open website
     elif 'open' in command and 'website' in command:
         known_sites = {
-            'google': 'https://www.google.com',
-            'linkedin': 'https://www.linkedin.com',
-            'devfolio': 'https://www.devfolio.co',
-            'youtube': 'https://www.youtube.com',
-            'github': 'https://www.github.com',
-            'facebook': 'https://www.facebook.com',
-            'twitter': 'https://www.twitter.com',
-            'instagram': 'https://www.instagram.com',
-            'stackoverflow': 'https://stackoverflow.com',
-            'gmail': 'https://mail.google.com',
-            'amazon': 'https://www.amazon.com',
-            'flipkart': 'https://www.flipkart.com',
-            'wikipedia': 'https://www.wikipedia.org',
-            'reddit': 'https://www.reddit.com',
-            'netflix': 'https://www.netflix.com',
-            'whatsapp': 'https://web.whatsapp.com',
-            'spotify': 'https://www.spotify.com',
-            'zoom': 'https://zoom.us',
-            'office': 'https://www.office.com',
-            'microsoft': 'https://www.microsoft.com',
-            'apple': 'https://www.apple.com',
-            'bing': 'https://www.bing.com',
-            'yahoo': 'https://www.yahoo.com',
-            'quora': 'https://www.quora.com',
-            'telegram': 'https://web.telegram.org',
-            'discord': 'https://discord.com',
-            'drive': 'https://drive.google.com',
-            'canva': 'https://www.canva.com',
-            'medium': 'https://medium.com',
-            'coursera': 'https://www.coursera.org',
-            'udemy': 'https://www.udemy.com',
-            'kaggle': 'https://www.kaggle.com',
-            'leetcode': 'https://leetcode.com',
-            'ing': 'https://www.ing.com/Home.htm',
+            'google.com': 'https://www.google.com',
+            'linkedin.com': 'https://www.linkedin.com',
+            'devfolio.co': 'https://www.devfolio.co',
+            'youtube.com': 'https://www.youtube.com',
+            'github.com': 'https://www.github.com',
+            'facebook.com': 'https://www.facebook.com',
+            'twitter.com': 'https://www.twitter.com',
+            'instagram.com': 'https://www.instagram.com',
+            'stackoverflow.com': 'https://stackoverflow.com',
+            'gmail.com': 'https://mail.google.com',
+            'amazon.com': 'https://www.amazon.com',
+            'amazon.in': 'https://www.amazon.in',
+            'flipkart.com': 'https://www.flipkart.com',
+            'wikipedia.org': 'https://www.wikipedia.org',
+            'reddit.com': 'https://www.reddit.com',
+            'netflix.com': 'https://www.netflix.com',
+            'whatsapp.com': 'https://web.whatsapp.com',
+            'spotify.com': 'https://www.spotify.com',
+            'zoom.us': 'https://zoom.us',
+            'office.com': 'https://www.office.com',
+            'microsoft.com': 'https://www.microsoft.com',
+            'apple.com': 'https://www.apple.com',
+            'bing.com': 'https://www.bing.com',
+            'yahoo.com': 'https://www.yahoo.com',
+            'quora.com': 'https://www.quora.com',
+            'telegram.org': 'https://web.telegram.org',
+            'discord.com': 'https://discord.com',
+            'drive.google.com': 'https://drive.google.com',
+            'canva.com': 'https://www.canva.com',
+            'medium.com': 'https://medium.com',
+            'coursera.org': 'https://www.coursera.org',
+            'udemy.com': 'https://www.udemy.com',
+            'kaggle.com': 'https://www.kaggle.com',
+            'leetcode.com': 'https://leetcode.com',
+            'ing.com': 'https://www.ing.com/Home.htm',
         }
         # Use a more robust extraction for the site name
-        # Accepts: "open <site> website" or just "open <site>"
         match = re.search(r'open (.+?)(?: website)?$', command)
         site_name = ''
         url = ''
         if match:
             site_name = match.group(1).strip().lower()
+            # Replace spoken domain suffixes
+            site_name = site_name.replace(' dot com', '.com').replace(' dot in', '.in').replace(' dot org', '.org')
             # Remove any extra words (e.g., 'the', 'app', 'site', 'website')
             for word in ['the', 'app', 'site', 'website']:
                 site_name = site_name.replace(word, '').strip()
+            # Remove spaces
+            site_name = site_name.replace(' ', '')
             # Try to match known sites (by key or by substring)
             for key in sorted(known_sites, key=len, reverse=True):
                 if key == site_name or key in site_name or site_name in key:
@@ -115,10 +119,12 @@ def run_alexa():
                     site_name = key
                     break
             if not url:
-                # Fallback: construct a .com URL with no spaces or special chars
-                safe_site = re.sub(r'[^a-z0-9]', '', site_name)
-                url = f'https://www.{safe_site}.com'
-            display_name = site_name.capitalize() if site_name else 'website'
+                # If the user specified a domain, use it; otherwise, fallback to .com
+                if any(site_name.endswith(suffix) for suffix in ['.com', '.in', '.org']):
+                    url = f'https://www.{site_name}'
+                else:
+                    url = f'https://www.{site_name}.com'
+            display_name = site_name.replace('.com','').replace('.in','').replace('.org','').capitalize() if site_name else 'website'
             talk(f'Opening {display_name}')
             print(f'Opening URL: {url}')
             webbrowser.open(url)

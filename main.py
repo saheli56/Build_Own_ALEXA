@@ -66,6 +66,7 @@ def run_alexa():
             'google.com': 'https://www.google.com',
             'linkedin.com': 'https://www.linkedin.com',
             'devfolio.co': 'https://www.devfolio.co',
+            'onlinesbi.sbi': 'https://www.onlinesbi.com',
             'youtube.com': 'https://www.youtube.com',
             'github.com': 'https://www.github.com',
             'facebook.com': 'https://www.facebook.com',
@@ -100,7 +101,7 @@ def run_alexa():
             'ing.com': 'https://www.ing.com/Home.htm',
         }
         # Supported TLDs
-        tlds = ['.com', '.in', '.ai', '.org', '.net', '.co', '.us', '.gov', '.edu', '.io', '.me', '.info', '.xyz']
+        tlds = ['.com', '.in', '.ai', '.org', '.net', '.co', '.us', '.gov', '.edu', '.io', '.me', '.info', '.xyz', '.sbi']
 
         # Extract the site name from the command
         match = re.search(r'open (.+?)(?: website)?$', command)
@@ -111,7 +112,7 @@ def run_alexa():
 
             # Replace spoken domain suffixes like 'dot ai' with '.ai'
             # Clean unwanted words first
-            for word in ['the', 'app', 'site', 'website', 'please']:
+            for word in ['app', 'site', 'website', 'please']:  # Removed 'the' from removal list
                 site_name = site_name.replace(word, '').strip()
             
             for tld in tlds:

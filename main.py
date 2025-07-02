@@ -186,3 +186,7 @@ def run_alexa():
 if __name__ == "__main__":
     while True:
         run_alexa()
+        user_choice = input("Press Enter to continue or type 'exit' to quit: ").strip().lower()
+        if user_choice == 'exit':
+            print("Exiting Alexa. Goodbye!")
+            break

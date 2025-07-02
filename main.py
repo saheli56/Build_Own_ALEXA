@@ -60,6 +60,7 @@ def run_alexa():
         song = command.replace('play', '').strip()
         talk('playing ' + song)
         pywhatkit.playonyt(song)
+        return
     # Relaxed matching for open website
     elif 'open' in command and ('website' in command or 'dot' in command or any(tld in command for tld in ['.com', '.in', '.ai', '.org', '.net', '.co', '.us', '.gov', '.edu'])):
         known_sites = {
@@ -149,6 +150,7 @@ def run_alexa():
         talk(f'Opening {display_name}')
         print(f'Opening URL: {url}')
         webbrowser.open(url)
+        return
     else:
         talk('Sorry, I could not understand which website to open.')
         return
@@ -158,21 +160,27 @@ def run_alexa():
         time = datetime.datetime.now().strftime('%I:%M %p')
         talk('The current time is ' + time)
         print(time)
+        return
     elif 'who is' in command:
         person = command.replace('who is', '').strip()
         info = wikipedia.summary(person, 1)
         print(info)
         talk(info)
+        return
     elif 'joke' in command:
         talk(pyjokes.get_joke())
+        return
     elif 'hello' in command:
         talk('Hi!')
+        return
     elif 'how are you doing' in command or 'how are you' in command:
         talk('I am doing good! Thanks for asking!')
+        return
     elif 'bye' in command:
         quit()
     else:
         talk('Sorry, I did not understand. Please say the command again.')
+        return
 
 
 if __name__ == "__main__":

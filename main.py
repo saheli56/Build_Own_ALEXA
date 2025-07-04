@@ -6,17 +6,29 @@ import wikipedia
 import pyjokes
 import webbrowser
 import re
+import subprocess
 
 listener = sr.Recognizer()
-engine = pyttsx3.init()
-voices = engine.getProperty('voices')
-engine.setProperty('voice', voices[1].id)
-engine.say("Hello, I am Alexa, how can I help you?")
-engine.runAndWait()
+try:
+    engine = pyttsx3.init()
+    voices = engine.getProperty('voices')
+    engine.setProperty('voice', voices[1].id)
+    engine.say("Hello, I am Alexa, how can I help you?")
+    engine.runAndWait()
+except Exception as e:
+    print(f"Warning: Text-to-speech initialization failed: {e}")
+    engine = None
 
 def talk(text):
-    engine.say(text)
-    engine.runAndWait()
+    if engine:
+        try:
+            engine.say(text)
+            engine.runAndWait()
+        except Exception as e:
+            print(f"Text-to-speech error: {e}")
+            print(f"Alexa: {text}")
+    else:
+        print(f"Alexa: {text}")
 
 
 def take_command():
@@ -55,107 +67,105 @@ def run_alexa():
         talk('Sorry, I did not catch that. Please say the command again.')
         return
     print(f"DEBUG: Processing command -> {command}")
-    # Relaxed matching for play
-    if 'play' in command:
-        song = command.replace('play', '').strip()
-        talk('playing ' + song)
-        pywhatkit.playonyt(song)
-        return
-    # Relaxed matching for open website
-    elif 'open' in command and ('website' in command or 'dot' in command or any(tld in command for tld in ['.com', '.in', '.ai', '.org', '.net', '.co', '.us', '.gov', '.edu'])):
-        known_sites = {
-            'google.com': 'https://www.google.com',
-            'linkedin.com': 'https://www.linkedin.com',
-            'devfolio.co': 'https://www.devfolio.co',
-            'onlinesbi.sbi': 'https://www.onlinesbi.com',
-            'youtube.com': 'https://www.youtube.com',
-            'github.com': 'https://www.github.com',
-            'facebook.com': 'https://www.facebook.com',
-            'twitter.com': 'https://www.twitter.com',
-            'instagram.com': 'https://www.instagram.com',
-            'stackoverflow.com': 'https://stackoverflow.com',
-            'gmail.com': 'https://mail.google.com',
-            'amazon.com': 'https://www.amazon.com',
-            'amazon.in': 'https://www.amazon.in',
-            'flipkart.com': 'https://www.flipkart.com',
-            'wikipedia.org': 'https://www.wikipedia.org',
-            'reddit.com': 'https://www.reddit.com',
-            'netflix.com': 'https://www.netflix.com',
-            'whatsapp.com': 'https://web.whatsapp.com',
-            'spotify.com': 'https://www.spotify.com',
-            'zoom.us': 'https://zoom.us',
-            'office.com': 'https://www.office.com',
-            'microsoft.com': 'https://www.microsoft.com',
-            'apple.com': 'https://www.apple.com',
-            'bing.com': 'https://www.bing.com',
-            'yahoo.com': 'https://www.yahoo.com',
-            'quora.com': 'https://www.quora.com',
-            'telegram.org': 'https://web.telegram.org',
-            'discord.com': 'https://discord.com',
-            'drive.google.com': 'https://drive.google.com',
-            'canva.com': 'https://www.canva.com',
-            'medium.com': 'https://medium.com',
-            'coursera.org': 'https://www.coursera.org',
-            'udemy.com': 'https://www.udemy.com',
-            'kaggle.com': 'https://www.kaggle.com',
-            'leetcode.com': 'https://leetcode.com',
-            'ing.com': 'https://www.ing.com/Home.htm',
-        }
-        # Supported TLDs
-        tlds = ['.com', '.in', '.ai', '.org', '.net', '.co', '.us', '.gov', '.edu', '.io', '.me', '.info', '.xyz', '.sbi']
 
-        # Extract the site name from the command
-        match = re.search(r'open (.+?)(?: website)?$', command)
-        site_name = ''
-        url = ''
+    app_map = {
+        'notepad': 'notepad.exe',
+        'calculator': 'calc.exe',
+        'chrome': r'C:\Program Files\Google\Chrome\Application\chrome.exe',
+        'edge': r'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe',
+        'word': r'C:\Program Files\Microsoft Office\root\Office16\WINWORD.EXE',
+        'excel': r'C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE',
+        'paint': 'mspaint.exe',
+        'cmd': 'cmd.exe',
+        'powershell': 'powershell.exe',
+        'explorer': 'explorer.exe',
+        'brave': r'C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe',
+        'control panel': 'control.exe',
+        'cursor': r'C:\Users\sahel\AppData\Local\Programs\Cursor\Cursor.exe',
+    }
+    known_sites = {
+        'facebook': 'https://www.facebook.com',
+        'google': 'https://www.google.com',
+        'linkedin': 'https://www.linkedin.com',
+        'youtube': 'https://www.youtube.com',
+        'github': 'https://www.github.com',
+        'twitter': 'https://www.twitter.com',
+        'instagram': 'https://www.instagram.com',
+        'stackoverflow': 'https://stackoverflow.com',
+        'gmail': 'https://mail.google.com',
+        'amazon': 'https://www.amazon.com',
+        'flipkart': 'https://www.flipkart.com',
+        'wikipedia': 'https://www.wikipedia.org',
+        'reddit': 'https://www.reddit.com',
+        'netflix': 'https://www.netflix.com',
+        'whatsapp': 'https://web.whatsapp.com',
+        'spotify': 'https://www.spotify.com',
+        'zoom': 'https://zoom.us',
+        'office': 'https://www.office.com',
+        'microsoft': 'https://www.microsoft.com',
+        'apple': 'https://www.apple.com',
+        'bing': 'https://www.bing.com',
+        'yahoo': 'https://www.yahoo.com',
+        'quora': 'https://www.quora.com',
+        'telegram': 'https://web.telegram.org',
+        'discord': 'https://discord.com',
+        'drive': 'https://drive.google.com',
+        'canva': 'https://www.canva.com',
+        'medium': 'https://medium.com',
+        'coursera': 'https://www.coursera.org',
+        'udemy': 'https://www.udemy.com',
+        'kaggle': 'https://www.kaggle.com',
+        'leetcode': 'https://leetcode.com',
+        'ing': 'https://www.ing.com/Home.htm',
+    }
+    tlds = ['.com', '.in', '.ai', '.org', '.net', '.co', '.us', '.gov', '.edu', '.io', '.me', '.info', '.xyz', '.sbi', '.dev', '.app']
+
+    # NLP: Extract target after 'open'
+    target = ''
+    if 'open' in command:
+        match = re.search(r'open\s+([\w\s\.\-]+)', command)
         if match:
-            site_name = match.group(1).strip().lower()
+            target = match.group(1).strip().lower()
+            # Remove common filler words
+            target = re.sub(r'\b(app|application|desktop|please|the|website|site)\b', '', target).strip()
 
-        # Replace spoken domain suffixes like 'dot ai' with '.ai'
-        # Clean unwanted words first
-        for word in ['app', 'site', 'website', 'please']:
-            site_name = site_name.replace(word, '').strip()
-
-        for tld in tlds:
-            spoken = ' dot ' + tld[1:]
-            site_name = site_name.replace(spoken, tld)
-
-        # Check for TLDs as separate words without "dot"
-        parts = site_name.split()
-        if len(parts) > 1:
-            last_part = parts[-1]
-            if f".{last_part}" in tlds:
-                site_name = ".".join(parts)
-
-        # Final clean of any remaining spaces not part of domain structure
-        site_name = site_name.replace(' ', '')
-
-        # Check if the site matches a known site
-        for key in sorted(known_sites, key=len, reverse=True):
-            if key == site_name or key in site_name or site_name in key:
-                url = known_sites[key]
-                site_name = key
-                break
-
-        if not url:
-            # Check if the site name ends with a valid TLD
-            has_tld = any(site_name.endswith(tld) for tld in tlds)
-            if has_tld:
-                url = f'https://www.{site_name}'
-            else:
-                # Default to '.com' if no TLD is found
-                url = f'https://www.{site_name}.com'
-
-        display_name = site_name.split('.')[0].capitalize() if site_name else 'website'
-        talk(f'Opening {display_name}')
-        print(f'Opening URL: {url}')
-        webbrowser.open(url)
-        return
-    else:
-        talk('Sorry, I could not understand which website to open.')
+    # Prefer app if both app and website exist
+    if target:
+        # Check for app match (exact or partial)
+        for app in app_map:
+            if app == target or app in target:
+                talk(f'Opening {app}')
+                try:
+                    subprocess.Popen(app_map[app])
+                except Exception as e:
+                    talk(f'Sorry, I could not open {app}.')
+                    print(f'Error opening {app}:', e)
+                return
+        # Check for website match (by name or TLD)
+        for site in known_sites:
+            if site == target or site in target:
+                url = known_sites[site]
+                talk(f'Opening {site}')
+                print(f'Opening URL: {url}')
+                webbrowser.open(url)
+                return
+        # Check for TLD in target (e.g., google.com)
+        if any(tld in target for tld in tlds):
+            url = target if target.startswith('http') else f'https://{target}'
+            talk(f'Opening {target.split(".")[0].capitalize()}')
+            print(f'Opening URL: {url}')
+            webbrowser.open(url)
+            return
+        # Fallback: try as .com website
+        if target:
+            url = f'https://www.{target}.com'
+            talk(f'Opening {target.capitalize()}')
+            print(f'Opening URL: {url}')
+            webbrowser.open(url)
+            return
+        talk('Sorry, I could not understand which app or website to open.')
         return
 
-    # The following elif/else blocks should be at the same indentation as the first if/elif/else
     if 'time' in command:
         time = datetime.datetime.now().strftime('%I:%M %p')
         talk('The current time is ' + time)
